@@ -1,0 +1,46 @@
+# secure credentials
+config/
+.env
+*.env
+*.env.json
+*.pem
+*.p8
+*_rsa
+*_dsa
+
+samconfig.toml
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+*.exe
+*.test
+*.prof
+*.log
+
+node_modules
+npm-debug.log
+.DS_Store
+
+big-databases/
+
+.aws-sam/
+*.project
+*.sublime-workspace
+database-dumps/
