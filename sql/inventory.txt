@@ -1,0 +1,104 @@
+
+-------------------------------------------------------------------------
+Raw Voter Data
+-------------------------------------------------------------------------
+voter - (VoterTable_Create.sql) - 2017 raw voter data. Source Tab Delimited file
+
+-------------------------------------------------------------------------
+Normalized Voter Data
+-------------------------------------------------------------------------
+Voters - (CreateTables.sql / Populate_Voters.sql)
+Cities - (CreateTables.sql / Populate_Cities.sql)
+MailAddress  - (CreateTables.sql / Populate_MailAddress.sql)
+Streets  - (CreateTables.sql / Populate_Streets.sql)
+VotingRecord  - (CreateTables.sql / Populate_VotingRecord.sql)
+
+-------------------------------------------------------------------------
+Raw Unregistered Voters
+-------------------------------------------------------------------------
+uvoter_raw - (UVoter_Create.sql) - CSV file from Dem VAN
+geocodes - (Geocodes_Create.sql) - CSV file from Census Bureau lookup of unregistered voters
+precinct_geocode - (precinct_geocode_create.sql) - Geocode for center of each precinct
+
+-------------------------------------------------------------------------
+Cleansed Unregistered Voters
+-------------------------------------------------------------------------
+uvoter - (UVoter_Create.sql) - Copy of uvoter_raw with duplicates removed.
+uvoter_splitaddress - (UVoter_Create.sql / uvoterAddress.sql) - Address split into components
+
+-------------------------------------------------------------------------
+Tables not currently in use
+-------------------------------------------------------------------------
+street_ranges - (street_ranges_create.sql) - Min and Max Street number for each street.  Possible use to validate Block Number.
+streetbuildings - (ReferenceTables_Create.sql) - Distinct list of values
+streetdirections - (ReferenceTables_Create.sql) - Distinct list of values
+streetnames - (ReferenceTables_Create.sql) - Distinct list of values
+streets - (ReferenceTables_Create.sql) - Distinct list of values
+streettypes - (ReferenceTables_Create.sql) - Distinct list of values
+unit_types - (ReferenceTables_Create.sql) - Distinct list of values
+units - (ReferenceTables_Create.sql) - Distinct list of values
+
+-------------------------------------------------------------------------
+DB Functions
+-------------------------------------------------------------------------
+Voters_On_Block_Function.sql
+   - Voters_On_Block(instreetnumber int, instreetname varchar, instreettype varchar, incity varchar);
+     - Returns a list of voters on a block using RAW table (block = 100 range street numbers)
+     - References table(s):
+        - voters_on_block_results (return)
+        - voter
+     - API: voters-on-block?streetName=shady%20Creek&blockNumber=2200
+
+   - Voters_On_Block(instreetnumber int, instreetkey int);
+     - Returns a list of voters on a block (block = 100 range street numbers)
+     - References table(s):
+        - voters_on_block_results (return)
+        - Voters
+        - Streets
+     - API: voters-on-block?streetKey=17549&blockNumber=2200
+
+GetCities_Function.sql
+   - Get_Cities()
+     - Returns list of Cities in Dallas County
+     - Referenced table(s):
+       - get_cities_results (return)
+       - Cities
+     - API: get-cities
+
+GetStreets_Function.sql
+   - Get_Streets(inCityOrZip character varying)
+     - Returns list of Streets for the passed City or Zip code.  If neither City or Zip is passed the list contains all Streets in Dallas County.
+       - Referenced table(s);
+         - get_streets_results (return)
+         - Streets
+     - API: get-streets?cityOrZip=Richardson
+
+Close_Unregistered_Voters.sql
+   - Close_Unregistered_Voters(instreetnumber int, instreetkey int);
+     - Returns unregistered voters in close proximity to the passed street address.
+       - Referenced table(s):
+         - close_unregisteed_voters (return)
+         - geocodes
+         - precinct_geocode
+         - uvoter
+         - uvoter_splitaddress
+         - Streets
+     - API: close-unregistered-voters?streetKey=562&streetNumber=2600
+
+   - Close_Unregistered_Voters(inprecinct varchar);
+     - Returns unregistered voters in passed precinct.
+       - Referenced table(s):
+         - close_unregisteed_voters (return)
+         - geocodes
+         - uvoter
+         - uvoter_splitaddress
+     - API: close-unregistered-voters?precinct=2501
+
+-------------------------------------------------------------------------
+DB Functions
+-------------------------------------------------------------------------
+Streets_By_City_Function.sql
+Zips_By_City_Function.sql
+Cities_By_Zip_Function.sql
+
+

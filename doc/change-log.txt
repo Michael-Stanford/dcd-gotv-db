@@ -1,0 +1,8 @@
+22 01 01 added session table:
+  User ID
+  Passcode
+  Passcode try count
+  Passcode expires
+  Session ID
+  Session expires
+
