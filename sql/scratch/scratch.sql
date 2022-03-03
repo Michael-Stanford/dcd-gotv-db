@@ -12,6 +12,18 @@ select * from voters_on_block(2217, '%shady%');
 select * from voters_on_block(2217, '%shady%', 'DR', 'Rich%');
 select * from voters_on_block(2217, 17549);
 
+select * from "Streets" fetch first 10 rows only;
+select * from addresses fetch first 10 rows only;
+with xx as (
+select distinct street_key, count(*) as count
+from streets_by_precinct 
+group by street_key
+)
+select xx.*,s.fullstreetname
+from xx
+join "Streets" s on xx.street_key = s.street_key
+order by count desc
+;
 select * from get_streets();
 select * from get_precincts();
 

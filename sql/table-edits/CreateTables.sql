@@ -2,7 +2,7 @@
 -- Please log an issue at https://redmine.postgresql.org/projects/pgadmin4/issues/new if you find any bugs, including reproduction steps.
 BEGIN;
 
-drop TABLE IF EXISTS "Streets","MailAddress","Voters","VotingRecord","Cities", precincts cascade;
+drop TABLE IF EXISTS "Streets","MailAddress","Voters","VotingRecord","Cities", precincts, streets_by_precinct cascade;
 
 CREATE TABLE "Voters"
 (
@@ -102,6 +102,13 @@ CREATE TABLE precincts
 	state_board_of_edu character(2),	
 	st_rep character(3),
     PRIMARY KEY (precinct)
+);
+
+CREATE TABLE streets_by_precinct
+(
+    street_key int NOT NULL,
+    precincts character varying(128) NOT NULL,
+    PRIMARY KEY (street_key)
 );
 
 ALTER TABLE "Voters"
