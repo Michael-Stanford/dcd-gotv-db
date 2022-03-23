@@ -132,7 +132,9 @@ select * from Get_Addresses('2048');
 select * from get_addresses('2048','A',712);
 
 select * from addresses where street_key = 718 and streetnumber = 5565;
-call update_address(5565, 718, 'A', true, 500, 0);
+call update_address(6565, 718, 'A', true, 500, 0);
+select update_address_f(5565, 718, 'A', true, 504);
+--http://localhost:3000/update-address?streetNumber=5565&streetKey=718&propertyCode=1&gated=true&estimatedNumberOfUnits=500
 select * from addresses where street_key = 718 and streetnumber = 5565;
 call Update_Address(5565, 718, 'U', false, 1, 0);
 
