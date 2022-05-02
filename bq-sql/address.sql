@@ -1,4 +1,10 @@
 
+-- Most recent modification to address table
+select max(modified_date) from `demstxsp.tdp_dallasdems.address`;
+select count(*),TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)) from `demstxsp.tdp_dallasdems.address` 
+WHERE modified_date > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY));
+select * from `demstxsp.tdp_dallasdems.address` where modified_date > TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY));
+
 -- Address Verification
 select melissa_data_results from `demstxsp.tdp_dallasdems.address` where melissa_data_results is not null limit 100;
 select distinct melissa_data_results,count(*) from `demstxsp.tdp_dallasdems.address` group by 1 order by 2 desc;

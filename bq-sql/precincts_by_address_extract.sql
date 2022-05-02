@@ -1,7 +1,7 @@
 
 -- Create Precincts by Address Table
-drop table if exists `demstxdallascp.sbx_farrarb.precincts_by_address`;
-create table if not exists `demstxdallascp.sbx_farrarb.precincts_by_address`
+drop table if exists `demstxdallascp.sbx_farrarb.precincts_by_address_extract`;
+create table if not exists `demstxdallascp.sbx_farrarb.precincts_by_address_extract`
 (
   full_address	STRING,
   precinct_name	STRING,
@@ -9,7 +9,7 @@ create table if not exists `demstxdallascp.sbx_farrarb.precincts_by_address`
 );
 
 -- Extract Precincts by Address
-insert into `demstxdallascp.sbx_farrarb.precincts_by_address` (full_address, precinct_name, count)
+insert into `demstxdallascp.sbx_farrarb.precincts_by_address_extract` (full_address, precinct_name, count)
 with xx as (
   select 
        regexp_replace(regexp_replace(trim(street_number), r" .*$", ""), r"[A-Z]","") as street_number,
@@ -32,9 +32,13 @@ order by 1,2
 
 -- Validate Precincts by Address Table
 select full_address, count(*) from `demstxdallascp.sbx_farrarb.precincts_by_address` group by 1 order by 2 desc;
-select * from `demstxdallascp.sbx_farrarb.precincts_by_address` where full_address = '2111 BENNETT AVE DALLAS 75206';
+select * from `demstxdallascp.sbx_farrarb.precincts_by_address_extract` where full_address = '2111 BENNETT AVE DALLAS 75206';
 
 
 select dnc_precinct_id,* from `demstxsp.tdp_dallasdems.address`
 where upper(address) like '3824 CEDAR SPRINGS RD%'
 ; 
+
+select distinct dnc_precinct_id from `demstxsp.tdp_dallasdems.address`
+where upper(address) like '8400 SUNSET BLVD%'
+;

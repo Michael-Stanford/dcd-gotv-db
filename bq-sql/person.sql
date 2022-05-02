@@ -3,6 +3,7 @@ where last_name = 'FARRAR' and first_name in ('BRIAN', 'KIMBERLY')
 order by first_name
 LIMIT 1000;
 
+select * from `demstxsp.tdp_dallasdems.person` where van_suffix is not null limit 100;
 select * from `demstxsp.tdp_dallasdems.person_phones` where person_id in ('178184457', '169179386');
 
 
