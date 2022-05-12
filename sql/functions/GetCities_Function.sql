@@ -9,6 +9,6 @@ create table Get_Cities_Results (
 create function Get_Cities()
 returns setof Get_Cities_Results language sql as $$
 select city
-from "Cities"
+from bq_city_extract
 order by city
 $$;

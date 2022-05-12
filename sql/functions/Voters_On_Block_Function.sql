@@ -1,24 +1,22 @@
 
-drop function if exists Voters_On_Block(instreetnumber int, instreetname varchar, instreettype varchar, incity varchar);
-drop function if exists Voters_On_Block(instreetnumber int, instreetkey int);
+drop function if exists Voters_On_Block(instreetnumber int, instreetid int);
 drop table if exists Voters_On_Block_Results;
+
 
 CREATE TABLE voters_on_block_results (
     name character varying(128),
     age integer,
-    voterid integer,
-    voterstatus character(1),
+    voterid bigint,
+    voterstatus boolean,
     address character varying(128),
     partycode character(1),
     partycodes character varying(40),
-    votetypes character varying(40),
-    electioncodes character varying(160),
+	democratic_percentage int,
     lastname character varying(64),
     firstname character varying(64),
     middlename character varying(64),
     namesuffix character varying(64),
-    streetnumber integer,
-    streetbuilding character varying(64),
+    streetnumber character varying(64),
     streetpredir character varying(64),
     streetname character varying(64),
     streettype character varying(64),
@@ -32,173 +30,50 @@ CREATE TABLE voters_on_block_results (
 
 CREATE FUNCTION voters_on_block(
   instreetnumber integer,
-  instreetname character varying,
-  instreettype character varying DEFAULT NULL::character varying,
-  incity character varying DEFAULT NULL::character varying
+  instreetid integer
 )
   RETURNS SETOF voters_on_block_results
 AS $$
 
   select
-    coalesce(firstname, ' ')    ||' '||
-      coalesce(middlename, ' ') ||' '||
-      coalesce(lastname, ' ')   ||' '||
-      coalesce(namesuffix, ' ')
+    coalesce(v.first_name, ' ')    ||' '||
+      coalesce(v.middle_name, ' ') ||' '||
+      coalesce(v.last_name, ' ')   ||' '||
+      coalesce(v.suffix, ' ')
     as name,
-
-    extract(year from current_date) - cast(birthdate as int) as age,
-    cast(sos_voterid as int) as voterid,
-    coalesce(voter_status, '-') as voterstatus,
-
-    coalesce(streetnumber, 0)||' '||coalesce(streetbuilding, ' ')||' '||
-      coalesce(streetpredir, ' ')||' '||
-      coalesce(streetname, ' ')||' '||coalesce(streettype, ' ')||' '||
-      coalesce(streetpostdir, ' ')||' '||
-      coalesce(unit_type, ' ')||' '||coalesce(unit, ' ')||' '||
-      coalesce(city, ' ')||' '||
-      coalesce(zip, ' ')||' '||coalesce(zip4, ' ')
-    as Address,
-
-    coalesce(party_code, '-') as partycode,
-
-    coalesce(party_code1,'-')   ||coalesce(party_code2,'-') ||coalesce(party_code3,'-') ||
-      coalesce(party_code4,'-') ||coalesce(party_code5,'-') ||coalesce(party_code6,'-') ||
-      coalesce(party_code7,'-') ||coalesce(party_code8,'-') ||coalesce(party_code9,'-') ||
-      coalesce(party_code10,'-')||
-      coalesce(party_code11,'-')||coalesce(party_code12,'-')||coalesce(party_code13,'-')||
-      coalesce(party_code14,'-')||coalesce(party_code15,'-')||coalesce(party_code16,'-')||
-      coalesce(party_code17,'-')||coalesce(party_code18,'-')||coalesce(party_code19,'-')||
-      coalesce(party_code20,'-')||
-      coalesce(party_code21,'-')||coalesce(party_code22,'-')||coalesce(party_code23,'-')||
-      coalesce(party_code24,'-')||coalesce(party_code25,'-')||coalesce(party_code26,'-')||
-      coalesce(party_code27,'-')||coalesce(party_code28,'-')||coalesce(party_code29,'-')||
-      coalesce(party_code30,'-')||
-      coalesce(party_code31,'-')||coalesce(party_code32,'-')||coalesce(party_code33,'-')||
-      coalesce(party_code34,'-')||coalesce(party_code35,'-')||coalesce(party_code36,'-')||
-      coalesce(party_code37,'-')||coalesce(party_code38,'-')||coalesce(party_code39,'-')||
-      coalesce(party_code40,'-')
-    as partycodes,
-
-    coalesce(vote_type1,'-')    ||coalesce(vote_type2,'-')  ||coalesce(vote_type3,'-') ||
-      coalesce(vote_type4,'-')  ||coalesce(vote_type5,'-')  ||coalesce(vote_type6,'-') ||
-      coalesce(vote_type7,'-')  ||coalesce(vote_type8,'-')  ||coalesce(vote_type9,'-') ||
-      coalesce(vote_type10,'-')||
-      coalesce(vote_type11,'-') ||coalesce(vote_type12,'-') ||coalesce(vote_type13,'-')||
-      coalesce(vote_type14,'-') ||coalesce(vote_type15,'-') ||coalesce(vote_type16,'-')||
-      coalesce(vote_type17,'-') ||coalesce(vote_type18,'-') ||coalesce(vote_type19,'-')||
-      coalesce(vote_type20,'-')||
-      coalesce(vote_type21,'-') ||coalesce(vote_type22,'-') ||coalesce(vote_type23,'-')||
-      coalesce(vote_type24,'-') ||coalesce(vote_type25,'-') ||coalesce(vote_type26,'-')||
-      coalesce(vote_type27,'-') ||coalesce(vote_type28,'-') ||coalesce(vote_type29,'-')||
-      coalesce(vote_type30,'-')||
-      coalesce(vote_type31,'-') ||coalesce(vote_type32,'-') ||coalesce(vote_type33,'-')||
-      coalesce(vote_type34,'-') ||coalesce(vote_type35,'-') ||coalesce(vote_type36,'-')||
-      coalesce(vote_type37,'-') ||coalesce(vote_type38,'-') ||coalesce(vote_type39,'-')||
-      coalesce(vote_type40,'-')
-    as votetypes,
-
-    coalesce(election_code1,'-')    ||coalesce(election_code2,'-')||coalesce(election_code3,'-')||
-      coalesce(election_code4,'-')  ||coalesce(election_code5,'-')||coalesce(election_code6,'-')||
-      coalesce(election_code7,'-')  ||coalesce(election_code8,'-')||coalesce(election_code9,'-')||
-      coalesce(election_code10,'-')||
-      coalesce(election_code11,'-')||coalesce(election_code12,'-')||coalesce(election_code13,'-')||
-      coalesce(election_code14,'-')||coalesce(election_code15,'-')||coalesce(election_code16,'-')||
-      coalesce(election_code17,'-')||coalesce(election_code18,'-')||coalesce(election_code19,'-')||
-      coalesce(election_code20,'-')||
-      coalesce(election_code21,'-')||coalesce(election_code22,'-')||coalesce(election_code23,'-')||
-      coalesce(election_code24,'-')||coalesce(election_code25,'-')||coalesce(election_code26,'-')||
-      coalesce(election_code27,'-')||coalesce(election_code28,'-')||coalesce(election_code29,'-')||
-      coalesce(election_code30,'-')||
-      coalesce(election_code31,'-')||coalesce(election_code32,'-')||coalesce(election_code33,'-')||
-      coalesce(election_code34,'-')||coalesce(election_code35,'-')||coalesce(election_code36,'-')||
-      coalesce(election_code37,'-')||coalesce(election_code38,'-')||coalesce(election_code39,'-')||
-      coalesce(election_code40,'-')
-    as electioncodes,
-
-    coalesce(lastname,''),
-    coalesce(firstname,''),
-    coalesce(middlename,''),
-    coalesce(namesuffix,''),
-    coalesce(streetnumber,0) as streetnumber,
-    coalesce(streetbuilding,''),
-    coalesce(streetpredir,''),
-    coalesce(streetname,'') as streetname,
-    coalesce(streettype,'') as streettype,
-    coalesce(streetpostdir,''),
-    coalesce(unit_type,''),
-    coalesce(unit,''),
-    coalesce(city,'') as city,
-    coalesce(zip,''),
-    coalesce(zip4,'')
-
-  from voter
-
-  where streetnumber >= ((instreetnumber/100)*100)
-    and streetnumber < ((instreetnumber/100)*100)+100
-    and streetname = (select name from streets where name like upper(instreetname))
-    and (instreettype is null or (streettype like upper(instreettype)))
-    and (incity is null or (city like upper(incity)))
-
-  order by streetnumber, streetname, streettype, city, name;
-
-$$ LANGUAGE sql;
-
-CREATE FUNCTION voters_on_block(
-  instreetnumber integer,
-  instreetkey integer
-)
-  RETURNS SETOF voters_on_block_results
-AS $$
-
-  select
-    coalesce(firstname, ' ')    ||' '||
-      coalesce(middlename, ' ') ||' '||
-      coalesce(lastname, ' ')   ||' '||
-      coalesce(namesuffix, ' ')
-    as name,
-
-    extract(year from current_date) - cast(birthdate as int) as age,
-    cast(sos_voterid as int) as voterid,
-    coalesce(voter_status, '-') as voterstatus,
-
-    coalesce(streetnumber, 0)||' '||fullstreetname
-    as Address,
-
-    coalesce(party_code, '-') as partycode,
-
-    'xxx'
-    as partycodes,
-
-    'xxx'
-    as votetypes,
-
-    'xxx'
-    as electioncodes,
-
-    coalesce(lastname,''),
-    coalesce(firstname,''),
-    coalesce(middlename,''),
-    coalesce(namesuffix,''),
-    coalesce(streetnumber,0) as streetnumber,
-    coalesce(streetbuilding,''),
-    '' as streetpredir,
-    coalesce(streetname,'') as streetname,
-    coalesce(streettype,'') as streettype,
-    coalesce(streetdirection,'') as streetpostdir,
-    coalesce(unit_type,''),
-    coalesce(unit,''),
-    coalesce(city,'') as city,
-    coalesce(zip,''),
+    extract(year from current_date) - extract(year from v.date_of_birth) as age,
+    cast(v.sos_id as bigint) as voterid,
+    coalesce(v.reg_voter_status, false) as voterstatus,
+	a.full_address as Address,
+    coalesce(v.last_primary_party,'') as partycode, 
+    v.primary_parties as partycodes,
+	case when v.last_primary_party is not null 
+	then cast((cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) / 
+	(cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) + 
+	 cast((array_length(string_to_array(v.primary_parties, 'R'), 1) - 1) as numeric))) * 100 as int)
+	else '-1'
+	end as democratic_percentage,
+    coalesce(v.last_name,'') as lastname,
+    coalesce(v.first_name,'') as firstname,
+    coalesce(v.middle_name,'') as middlename,
+    coalesce(v.suffix,'') as namesuffix,
+    coalesce(a.street_number,'0') as streetnumber,
+    coalesce(s.street_pre_dir,'') as streetpredir,
+    coalesce(s.street_name,'') as streetname,
+    coalesce(s.street_type,'') as streettype,
+    coalesce(s.street_post_dir,'') as streetpostdir,
+    coalesce(u.unit_type,'') as unit_type,
+    coalesce(u.unit,'') as unit,
+    coalesce(s.city,'') as city,
+    coalesce(s.zip,'') as zip,
     '' as zip4
-
-  from "Streets" s
-  inner join "Voters" v
-     on s.street_key = v.street_key
-
-  where s.street_key = instreetkey
-    and streetnumber >= ((instreetnumber/100)*100)
-    and streetnumber < ((instreetnumber/100)*100)+100
-
-  order by streetnumber, s.street_key; -- Streets keys are assinged in sorted order on name
+  from bq_person_extract v
+  left join bq_unit_extract u    on u.address_id = v.address_id
+  left join bq_address_extract a on a.address_geo_id = u.address_geo_id
+  left join bq_street_extract s  on s.street_id = a.street_id
+  where s.street_id = instreetid
+    and cast(a.street_number as bigint) >= ((instreetnumber/100)*100)
+    and cast(a.street_number as bigint) < ((instreetnumber/100)*100)+100
+  order by a.full_address;
 
 $$ LANGUAGE sql;
