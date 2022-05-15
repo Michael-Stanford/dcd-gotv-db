@@ -1,0 +1,16 @@
+
+drop table if exists bq_reregistration_targets_extract_splitaddress cascade;
+
+create table bq_reregistration_targets_extract_splitaddress (
+	person_id character varying(64),
+	street_id int,
+	streetnumber character varying(64),
+    street_pre_dir varchar(64),
+    street_name varchar(64),
+    street_type varchar(64),
+    street_post_dir varchar(64),
+    unit_type varchar(64),
+    unit varchar(64),
+	extra varchar(150),
+	primary key (person_id)
+);

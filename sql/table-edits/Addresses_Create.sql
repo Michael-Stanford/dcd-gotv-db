@@ -1,4 +1,4 @@
-drop table if exists addresses, property_codes cascade;
+drop table if exists address_supplement, property_codes cascade;
 
 create table property_codes (
 	code char(1),
@@ -6,15 +6,14 @@ create table property_codes (
 	primary key (code)
 );
 
-create table addresses (
-	street_key int,
-	streetnumber int,
-    precinct character(4) NOT NULL,
-	property_code char(1) default 'U',
+create table address_supplement (
+	address_geo_id int,
+	precinct_name char(5),
+	property_type char(1) default 'U',
     gated boolean DEFAULT false,
     estimated_number_of_units integer DEFAULT 1,
     propertyname character varying(64),
-    PRIMARY KEY (street_key, streetnumber, precinct)
+    PRIMARY KEY (address_geo_id, precinct_name)
 );
 
 insert into property_codes (code, description)
