@@ -46,9 +46,9 @@ do $$
 	   foreach item in array rec.items
 	      loop
 		  
-	         itemIsDirection = coalesce((select true from streetdirections x where x.streetdirection = item), false);
-	         itemIsStreetType = coalesce((select true from streettypes x where x.streettype = item), false);
-	         itemIsUnitType = coalesce((select true from unit_types x where x.unit_type = item), false);
+	         itemIsDirection = coalesce((select true from bq_direction_extract x where x.street_dir = item), false);
+	         itemIsStreetType = coalesce((select true from bq_street_type_extract x where x.street_type = item), false);
+	         itemIsUnitType = coalesce((select true from bq_unit_type_extract x where x.unit_type = item), false);
 		     raise notice 'item is <%> %:%:%', item, itemIsDirection, itemIsStreetType, itemIsUnitType; 
 		  
 		     idx = idx +1;

@@ -34,14 +34,11 @@ select a.address_geo_id,
     (select count(*) from bq_person_extract zp 
      left join bq_unit_extract zu on zu.address_id = zp.address_id
      where zu.address_geo_id = a.address_geo_id) as number_of_registered_voters,
-	--(select count(*) from uvoter u 
-	-- join uvoter_splitaddress sa on sa.person_id = u.person_id
-	 --where a.streetnumber = cast(sa.streetnumber as int) and a.street_key = sa.street_key)  as number_of_unregistered_voters
-	 0 as number_of_unregistered_voters
+	(select count(*) from bq_reregistration_targets_extract_splitaddress sa 
+     where sa.address_geo_id = a.address_geo_id) as number_of_unregistered_voters
 from address_supplement a	 
 left join bq_address_extract bea on bea.address_geo_id = a.address_geo_id
 left join bq_street_extract s on s.street_id = bea.street_id
-left join bq_unit_extract u on u.address_geo_id = a.address_geo_id
 where (inprecinct_name is NULL or a.precinct_name = inprecinct_name) 
   and (instreet_id is NULL or instreet_id = s.street_id)
   and (inproperty_type is NULL or inproperty_type = a.property_type)
