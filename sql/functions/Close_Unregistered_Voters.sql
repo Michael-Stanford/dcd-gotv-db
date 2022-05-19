@@ -1,93 +1,93 @@
 
-drop function if exists Close_Unregistered_Voters(instreetnumber int, instreetkey int);
+drop function if exists Close_Unregistered_Voters(instreetnumber varchar, instreetid int);
 drop function if exists Close_Unregistered_Voters(inprecinct varchar);
-drop table if exists Close_Unregistered_Voters_Results;
+drop table if exists Close_Unregistered_Voters_Results cascade;
 
 CREATE TABLE Close_Unregistered_Voters_results (
-    person_id character varying(64),
-	street_key int,
-	firstname character varying(64),
-    lastname character varying(64),
-    precinct character varying(64),
-    streetnumber character varying(64),
-    streetdirection character varying(64),
-    streetname character varying(64),
-    streettype character varying(64),
+    person_id int,
+	address_geo_id int,
+	first_name character varying(128),
+    last_name character varying(128),
+    precinct_name character varying(128),
+    street_number character varying(128),
+    street_pre_dir character varying(128),
+    street_name character varying(128),
+    street_type character varying(128),
+    street_post_dir character varying(128),
     unit_type character varying(64),
     unit character varying(64),
-    streetbuilding character varying(64),
-    city character varying(64),
-    zip character varying(64),
+    city character varying(128),
+    zip character varying(128),
 	distance double precision,
 	lat double precision,
-	lng double precision,
-	side char(1)
+	lng double precision
 );
 
+-- ---------------------------------------------------------------------
 CREATE FUNCTION Close_Unregistered_Voters(
-  instreetnumber integer,
-  instreetkey integer
+  instreetnumber varchar,
+  instreetid int
 ) RETURNS SETOF Close_Unregistered_Voters_results AS $$
 DECLARE    
    _lat double precision;
    _lng double precision;
    _emptyVC64 character varying(64) default '';
+   _emptyVC128 character varying(128) default '';
+   _instreetnumberAsInt int;
 
 BEGIN
-select lat,lng 
-into _lat,_lng
-from geocodes 
-where street_key = instreetkey and streetnumber = instreetnumber
+
+select longitude, latitude 
+into _lng, _lat
+from bq_address_extract
+where street_id = instreetid and street_number = instreetnumber
 fetch first 1 rows only;
 
-if _lat is null then
-   select lat,lng 
-   into _lat,_lng
-   from geocodes 
-   where street_key = instreetkey
-       and streetnumber >= ((instreetnumber/100)*100) and streetnumber < ((instreetnumber/100)*100)+100
-   fetch first 1 rows only;
+if _lng is null then
+   _instreetnumberAsInt = cast(instreetnumber as int);
+   with xx as (
+	   select longitude, latitude 
+       from bq_address_extract 
+       where street_id = instreetid
+           and cast(street_number as int) >= ((_instreetnumberAsInt/100)*100) 
+	       and cast(street_number as int) < ((_instreetnumberAsInt/100)*100)+100
+   )
+   select avg(longitude), avg(latitude) 
+   into _lng, _lat
+   from xx;   
 end if;
 
 return query
 select 
-   v.person_id,
-   u.street_key,
-   v.first_name,
-   v.last_name,
-   v.van_precinct_name,
-   u.streetnumber, 
-   coalesce(u.streetdirection, _emptyVC64),
-   u.streetname,
-   u.streettype,
-   coalesce(u.unit_type, _emptyVC64),
-   coalesce(u.unit, _emptyVC64),
-   coalesce(u.streetbuilding, _emptyVC64),
-   v.city,
-   v.zip,
-   (point(g.lng, g.lat) <@> point(_lng, _lat))  as distance,
-   g.lat,
-   g.lng,	
-   g.streetside
-from uvoter v
-inner join uvoter_splitaddress u
-  on v.person_id = u.person_id
-inner join "Streets" s
-  on u.streetname = s.streetname
- and coalesce(u.streettype,'') = coalesce(s.streettype,'')
- and coalesce(u.streetdirection,'') = coalesce(s.streetdirection,'')
- and upper(v.city) = s.city
- and v.zip = s.zip
-inner join geocodes g
-  on cast(u.streetnumber as int) = g.streetnumber
- and u.street_key = g.street_key
-where (point(g.lng, g.lat) <@> point(_lng, _lat)) < 100
-order by (point(g.lng, g.lat) <@> point(_lng, _lat)) 
+    v.person_id,
+	u.address_geo_id,
+	v.first_name,
+    v.last_name,
+    a.precinct_name,
+    a.street_number,
+    coalesce(a.street_pre_dir, _emptyVC128),
+    a.street_name,
+    a.street_type,
+    coalesce(a.street_post_dir, _emptyVC128),
+    coalesce(u.unit_type, _emptyVC64),
+    coalesce(u.unit, _emptyVC64),
+    v.city,
+    v.zip,
+    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance,
+    a.longitude,
+    a.longitude 
+from bq_reregistration_targets_extract v
+inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
+inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
+inner join bq_street_extract s on s.street_id = a.street_id
+where (point(a.longitude, a.latitude) <@> point(_lng, _lat)) < 2.0
+order by (point(a.longitude, a.latitude) <@> point(_lng, _lat)) 
 fetch first 20 rows only
 ;
 END
 $$ LANGUAGE plpgsql;
 
+-- ---------------------------------------------------------------------
 CREATE FUNCTION Close_Unregistered_Voters(
   inprecinct varchar
 ) RETURNS SETOF Close_Unregistered_Voters_results AS $$
@@ -95,53 +95,46 @@ DECLARE
    _lat double precision;
    _lng double precision;
    _emptyVC64 character varying(64) default '';
+   _emptyVC128 character varying(128) default '';
 
 BEGIN
-select lat,lng 
-into _lat,_lng
+select lng,lat 
+into _lng,_lat
 from precinct_geocode 
 where precinct = inprecinct
 fetch first 1 rows only;
 
-if _lat is null then
+if _lng is null then
    _lat := 32.776665;
    _lng := -96.796989;
 end if;
 
 return query
 select 
-   v.person_id,
-   u.street_key,
-   v.first_name,
-   v.last_name,
-   v.van_precinct_name,
-   u.streetnumber, 
-   coalesce(u.streetdirection, _emptyVC64),
-   u.streetname,
-   u.streettype,
-   coalesce(u.unit_type, _emptyVC64),
-   coalesce(u.unit, _emptyVC64),
-   coalesce(u.streetbuilding, _emptyVC64),
-   v.city,
-   v.zip,
-   (point(g.lng, g.lat) <@> point(_lng, _lat))  as distance,
-   g.lat,
-   g.lng,	
-   g.streetside
-from uvoter v
-inner join uvoter_splitaddress u
-  on v.person_id = u.person_id
-inner join "Streets" s
-  on u.streetname = s.streetname
- and coalesce(u.streettype,'') = coalesce(s.streettype,'')
- and coalesce(u.streetdirection,'') = coalesce(s.streetdirection,'')
- and upper(v.city) = s.city
- and v.zip = s.zip
-inner join geocodes g
-  on cast(u.streetnumber as int) = g.streetnumber
- and u.street_key = g.street_key
-where v.van_precinct_name = inprecinct
+    v.person_id,
+	u.address_geo_id,
+	v.first_name,
+    v.last_name,
+    a.precinct_name,
+    a.street_number,
+    coalesce(a.street_pre_dir, _emptyVC128),
+    a.street_name,
+    a.street_type,
+    coalesce(a.street_post_dir, _emptyVC128),
+    coalesce(u.unit_type, _emptyVC64),
+    coalesce(u.unit, _emptyVC64),
+    v.city,
+    v.zip,
+    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance,
+    a.longitude,
+    a.longitude 
+from bq_reregistration_targets_extract v
+inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
+inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
+inner join bq_street_extract s on s.street_id = a.street_id
+where a.precinct_name = inprecinct
 fetch first 50 rows only
 ;
+
 END
 $$ LANGUAGE plpgsql;
