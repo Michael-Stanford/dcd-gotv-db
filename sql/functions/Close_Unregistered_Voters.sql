@@ -19,8 +19,8 @@ CREATE TABLE Close_Unregistered_Voters_results (
     city character varying(128),
     zip character varying(128),
 	distance double precision,
-	lat double precision,
-	lng double precision
+	longitude double precision,
+	latitude double precision
 );
 
 -- ---------------------------------------------------------------------
@@ -75,7 +75,7 @@ select
     v.zip,
     (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance,
     a.longitude,
-    a.longitude 
+    a.latitude 
 from bq_reregistration_targets_extract v
 inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
 inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
@@ -127,7 +127,7 @@ select
     v.zip,
     (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance,
     a.longitude,
-    a.longitude 
+    a.latitude 
 from bq_reregistration_targets_extract v
 inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
 inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
