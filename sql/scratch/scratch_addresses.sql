@@ -113,29 +113,15 @@ order by count desc
 -- ------------------------------------------------------------------------------
 -- View Properties in Precinct
 -- ------------------------------------------------------------------------------
-select a.*,s.fullstreetname,
-      (select count(*) from "Voters" v where a.streetnumber = v.streetnumber and a.street_key = v.street_key) as voters_at_address
-from addresses a
-join "Streets" s on a.street_key = s.street_key
-where a.precinct = '2048' and property_code <> 'S'    -- precinct 2048 has apartments
---where property_code = 'A'
-order by s.fullstreetname,a.streetnumber
-;
 
-select * from Get_Addresses('2048', 'S', 712);
-select * from Get_Addresses(null, 'S', 712);
-select * from Get_Addresses('2048', 'S');
-select * from Get_Addresses('2048', 'U');
-select * from Get_Addresses('2048', null, 712);
-select * from Get_Addresses('2048');
+--Get_Addresses(inprecinct_name char(4), inproperty_type char(1), instreet_id int);
+select * from Get_Addresses('2501', null, null);
+select * from Get_Addresses('2501', 'S', null);
+select * from Get_Addresses('2501', 'S', 53342129); -- Shady Creek Dr
+select * from Get_Addresses('2901', 'A', 79918023); -- VITRUVIAN WAY ADDISON 75001
+select * from Get_Addresses('2901', null, 79918023); -- VITRUVIAN WAY ADDISON 75001
 
-select * from get_addresses('2048','A',712);
-
-select * from addresses where street_key = 718 and streetnumber = 5565;
-call update_address(6565, 718, 'A', true, 500, 0);
-select update_address_f(5565, 718, 'A', true, 504);
---http://localhost:3000/update-address?streetNumber=5565&streetKey=718&propertyCode=1&gated=true&estimatedNumberOfUnits=500
-select * from addresses where street_key = 718 and streetnumber = 5565;
-call Update_Address(5565, 718, 'U', false, 1, 0);
+--Update_Address(inaddress_geo_id int, inproperty_type char(1), ingated boolean, inestimated_number_of_units int, outnumberofrowsupdated int);
+call Update_Address(227841713, 'A', true, 50, 0);
 
 select * from "Voters" where streetnumber = 3142 and street_key = 20607;

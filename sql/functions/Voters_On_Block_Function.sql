@@ -1,6 +1,6 @@
 
 drop function if exists Voters_On_Block(instreetnumber int, instreetid int);
-drop table if exists Voters_On_Block_Results;
+drop table if exists Voters_On_Block_Results cascade;
 
 
 CREATE TABLE voters_on_block_results (
