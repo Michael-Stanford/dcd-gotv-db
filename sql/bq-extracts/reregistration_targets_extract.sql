@@ -5,6 +5,7 @@ drop table if exists bq_reregistration_targets_extract cascade;
 create table bq_reregistration_targets_extract
 (
   person_id	int,
+  to_address_id	int,
   first_name	character varying(128),
   last_name	character varying(128),
   address	character varying(128),
