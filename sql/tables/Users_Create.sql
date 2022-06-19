@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users
     deleted_at timestamp with time zone,
     email character varying(128),
     name character varying(128),
+    phone character varying(128),
+    role integer,
     PRIMARY KEY (id)
 );
 

@@ -11,7 +11,7 @@ create table if not exists `demstxdallascp.sbx_farrarb.unit_extract`
 );
 
 -- Get Unit for Extract
-insert into `demstxdallascp.sbx_farrarb.unit_extract` (address_id, address_geo_id, unit_type, unit)
+insert into `demstxdallascp.sbx_farrarb.unit_extract` (address_id, address_geo_id, unit_type, unit, query_date)
 with xx as (
  select cast(a.address_id as INT64) as address_id, upper(a.unit_type) as unit_type, upper(a.unit) as unit, upper(a.street_number) as street_number, 
        upper(a.street_pre_dir) as street_pre_dir, upper(a.street_name) as street_name, 
@@ -20,7 +20,8 @@ with xx as (
   where a.county_fips = '113' -- Dallas County
     and a.street_number is not null and a.street_name is not null and a.city is not null and a.zip is not null
     --and upper(a.address) like '3824 CEDAR SPRINGS RD%'
-)
+    --and a.address_id = '53891115'
+), yy as (
  select a.address_id, ae.address_geo_id, a.unit_type, a.unit
   from xx a
   left join `demstxdallascp.sbx_farrarb.address_extract` ae 
@@ -32,5 +33,12 @@ with xx as (
     and coalesce(ae.city,'') = coalesce(a.city,'')
     and coalesce(ae.zip,'') = coalesce(a.zip,'')
     order by a.address_id, ae.address_geo_id
-    ;
+), zz as (
+select distinct address_id, address_geo_id, unit_type, unit 
+from yy a  
+group by 1,2,3,4
+)
+select address_id, address_geo_id, unit_type, unit, current_timestamp() as query_date
+from zz
+;
  

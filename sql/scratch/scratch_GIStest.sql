@@ -1,5 +1,5 @@
 
-CREATE EXTENSION postgis;
+-- CREATE EXTENSION postgis;  -- May not be needed for only distnace calculations
 CREATE EXTENSION earthdistance CASCADE;
 
 show role;
