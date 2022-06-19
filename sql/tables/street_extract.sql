@@ -1,5 +1,5 @@
 
-drop table if exists dq_street_extract cascade;
+drop table if exists bq_street_extract cascade;
 
 create table bq_street_extract
 (
