@@ -11,6 +11,8 @@
 --     -U DB user
 --
 
+CREATE EXTENSION earthdistance CASCADE;
+
 \i GetCities_Function.sql
 \i GetStreets_Function.sql
 \i Get_Addresses_Function.sql
