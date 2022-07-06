@@ -30,7 +30,8 @@ zip character varying,
 precinct_name character varying,
 longitude double precision,
 latitude double precision,
-distance double precision
+distance double precision,
+property_type character
 );
 
 -- ----------------------------------------------------------------------------------
@@ -47,6 +48,7 @@ DECLARE
    _lat double precision;
    _lng double precision;
    _instreetnumberAsInt int;
+   _U character default 'U';
    _emptyC character default '';
    _emptyVC character varying default '';
 
@@ -66,7 +68,7 @@ BEGIN
     cast(v.sos_id as bigint) as voterid,
     coalesce(v.reg_voter_status, false) as voterstatus,
 	a.full_address as address,
-    coalesce(v.last_primary_party,_emptyC) as partycode, 
+    coalesce(v.last_primary_party,_U) as partycode, 
     v.primary_parties as partycodes,
 	case when v.last_primary_party is not null 
 	then cast((cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) / 
@@ -90,15 +92,17 @@ BEGIN
     coalesce(a.precinct_name,_emptyVC) as precinct_name,
     coalesce(a.longitude,0.0) as longitude,
     coalesce(a.latitude,0.0) as latitude,
-	cast(0.0 as double precision) as distance
+	cast(0.0 as double precision) as distance,
+	coalesce(asup.property_type, _U) as property_type
   from bq_person_extract v
   left join bq_unit_extract u    on u.address_id = v.address_id
   left join bq_address_extract a on a.address_geo_id = u.address_geo_id
   left join bq_street_extract s  on s.street_id = a.street_id
+  left join address_supplement asup on asup.address_geo_id = u.address_geo_id
   where s.street_id = instreetid
     and cast(a.street_number as bigint) >= ((_instreetnumberAsInt/100)*100)
     and cast(a.street_number as bigint) < ((_instreetnumberAsInt/100)*100)+100
-  order by a.full_address;
+  order by a.full_address, u.unit_type, u,unit, v.last_name, v.first_name;
 END  
 
 $$ LANGUAGE plpgsql;
@@ -113,6 +117,7 @@ CREATE FUNCTION Get_Registered_Voters(
   RETURNS SETOF Get_Registered_Voters_Results
 AS $$
 DECLARE    
+   _U character default 'U';
    _emptyC character default '';
    _emptyVC character varying default '';
 
@@ -130,7 +135,7 @@ BEGIN
     cast(v.sos_id as bigint) as voterid,
     coalesce(v.reg_voter_status, false) as voterstatus,
 	a.full_address as address,
-    coalesce(v.last_primary_party,_emptyC) as partycode, 
+    coalesce(v.last_primary_party,_U) as partycode, 
     v.primary_parties as partycodes,
 	case when v.last_primary_party is not null 
 	then cast((cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) / 
@@ -154,13 +159,15 @@ BEGIN
     coalesce(a.precinct_name,_emptyVC) as precinct_name,
     coalesce(a.longitude,0.0) as longitude,
     coalesce(a.latitude,0.0) as latitude,
-	cast(0.0 as double precision) as distance
+	cast(0.0 as double precision) as distance,
+    coalesce(asup.property_type, _U) as property_type
   from bq_person_extract v
   left join bq_unit_extract u    on u.address_id = v.address_id
   left join bq_address_extract a on a.address_geo_id = u.address_geo_id
   left join bq_street_extract s  on s.street_id = a.street_id
+  left join address_supplement asup on asup.address_geo_id = u.address_geo_id
   where a.precinct_name = inprecinct
-  order by a.full_address;
+  order by a.full_address, u.unit_type, u,unit, v.last_name, v.first_name;
 END  
 
 $$ LANGUAGE plpgsql;

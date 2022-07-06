@@ -30,7 +30,8 @@ zip character varying,
 precinct_name character varying,
 longitude double precision,
 latitude double precision,
-distance double precision
+distance double precision,
+property_type character
 );
 
 -- ---------------------------------------------------------------------
@@ -45,6 +46,7 @@ DECLARE
    _lat double precision;
    _lng double precision;
    _instreetnumberAsInt int;
+   _U character default 'U';
    _emptyC character default '';
    _emptyVC character varying default '';
 
@@ -99,11 +101,13 @@ select
     a.precinct_name,
     a.longitude,
     a.latitude,
-    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance 
+    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance ,
+	coalesce(asup.property_type, _U) as property_type
 from bq_reregistration_targets_extract v
 inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
 inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
 inner join bq_street_extract s on s.street_id = a.street_id
+left join address_supplement asup on asup.address_geo_id = u.address_geo_id
 where (point(a.longitude, a.latitude) <@> point(_lng, _lat)) < 2.0
 order by (point(a.longitude, a.latitude) <@> point(_lng, _lat)) 
 fetch first 20 rows only
@@ -121,6 +125,7 @@ CREATE FUNCTION Get_Unregistered_Voters(
 DECLARE    
    _lat double precision;
    _lng double precision;
+   _U character default 'U';
    _emptyC character default '';
    _emptyVC character varying default '';
 
@@ -165,11 +170,13 @@ select
     a.precinct_name,
     a.longitude,
     a.latitude,
-    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance 
+    (point(a.longitude, a.latitude) <@> point(_lng, _lat))  as distance ,
+	coalesce(asup.property_type, _U) as property_type
 from bq_reregistration_targets_extract v
 inner join bq_reregistration_targets_extract_splitaddress u on v.person_id = u.person_id
 inner join bq_address_extract a on a.address_geo_id = u.address_geo_id
 inner join bq_street_extract s on s.street_id = a.street_id
+left join address_supplement asup on asup.address_geo_id = u.address_geo_id
 where a.precinct_name = inprecinct
 fetch first 50 rows only
 ;
