@@ -9,7 +9,11 @@ CREATE TABLE Addresses_results (
 	property_type char(1),
 	gated character varying,
 	estimated_number_of_units int,
-	propetyname character varying,
+    subdivision_name character varying(64),
+    complex_name character varying(64),
+	contact_name character varying(64),
+	contact_phone character varying(32),
+	number_of_buildings int DEFAULT 1,
 	number_of_registered_voters int,
 	number_of_unregistered_voters int
 );
@@ -30,7 +34,11 @@ select a.address_geo_id,
 	     when a.gated = true then 'true'
 		 else 'false' end as gated,
 	coalesce(a.estimated_number_of_units,0) as estimated_number_of_units,
-	coalesce(a.propertyname,'') as propertyname,
+    coalesce(a.subdivision_name,'') as subdivision_name,
+    coalesce(a.complex_name,'') as complex_name,
+	coalesce(a.contact_name,'') as contact_name,
+	coalesce(a.contact_phone,'') as contact_phone,
+	coalesce(a.number_of_buildings,0) as number_of_buildings,
     (select count(*) from bq_person_extract zp 
      left join bq_unit_extract zu on zu.address_id = zp.address_id
      where zu.address_geo_id = a.address_geo_id) as number_of_registered_voters,

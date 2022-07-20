@@ -11,8 +11,12 @@ create table address_supplement (
 	precinct_name char(5),
 	property_type char(1) default 'U',
     gated boolean DEFAULT false,
-    estimated_number_of_units integer DEFAULT 1,
-    propertyname character varying(64),
+    estimated_number_of_units int DEFAULT 1,
+    subdivision_name character varying(64),
+    complex_name character varying(64),
+	contact_name character varying(64),
+	contact_phone character varying(32),
+	number_of_buildings int DEFAULT 1,
     PRIMARY KEY (address_geo_id, precinct_name)
 );
 

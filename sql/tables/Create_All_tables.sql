@@ -1,16 +1,22 @@
-
--- Run from psql command
+--
+-- Run this script from psql
+--
+-- Examples:
 --
 -- psql -d dcd -f Create_All_tables.sql
+--
+-- psql -h database-1.cy4bk11o7qap.us-east-2.rds.amazonaws.com -U postgres -d dcd -f Create_All_tables.sql
+--
+-- Note:
 --
 --   -d is the Database to process
 --
 --   Other parameters which may be needed to identify instance of postgres
 --     -h DB host name
 --     -U DB user
---
 
 \i address_extract.sql
+\i address_extract_notes.sql
 \i bq_reregistration_targets_extract_splitaddress.sql
 \i city_extract.sql
 \i direction_extract.sql

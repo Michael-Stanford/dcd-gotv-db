@@ -1,9 +1,22 @@
 --
--- This script must be run from psql (cannot run in pgAdmin)
+-- Run this script from psql
 --
--- psql -h database-1.cy4bk11o7qap.us-east-2.rds.amazonaws.com -U postgres -d dcd -f copy_to_tables.sql
+-- Examples:
 --
+-- psql -d dcd -f copy_tables_to_csv.sql
+--
+-- psql -h database-1.cy4bk11o7qap.us-east-2.rds.amazonaws.com -U postgres -d dcd -f copy_tables_to_csv.sql
+--
+-- Note:
+--
+--   -d is the Database to process
+--
+--   Other parameters which may be needed to identify instance of postgres
+--     -h DB host name
+--     -U DB user
+
 \copy address_supplement to '/tmp/address_supplement.csv' DELIMITER ',' CSV HEADER;
+\copy address_supplement_notes to '/tmp/address_supplement_notes.csv' DELIMITER ',' CSV HEADER;
 \copy bq_address_extract to '/tmp/bq_address_extract.csv' DELIMITER ',' CSV HEADER;
 \copy bq_city_extract to '/tmp/bq_city_extract.csv' DELIMITER ',' CSV HEADER;
 \copy bq_direction_extract to '/tmp/bq_direction_extract.csv' DELIMITER ',' CSV HEADER;
