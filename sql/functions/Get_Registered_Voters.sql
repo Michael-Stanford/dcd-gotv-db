@@ -70,7 +70,7 @@ BEGIN
 	a.full_address as address,
     coalesce(v.last_primary_party,_U) as partycode, 
     v.primary_parties as partycodes,
-	case when v.last_primary_party is not null 
+	case when regexp_match(v.primary_parties, '[DR]') is not null 
 	then cast((cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) / 
 	(cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) + 
 	 cast((array_length(string_to_array(v.primary_parties, 'R'), 1) - 1) as numeric))) * 100 as int)
@@ -137,7 +137,7 @@ BEGIN
 	a.full_address as address,
     coalesce(v.last_primary_party,_U) as partycode, 
     v.primary_parties as partycodes,
-	case when v.last_primary_party is not null 
+	case when regexp_match(v.primary_parties, '[DR]') is not null 
 	then cast((cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) / 
 	(cast((array_length(string_to_array(v.primary_parties, 'D'), 1) - 1) as numeric) + 
 	 cast((array_length(string_to_array(v.primary_parties, 'R'), 1) - 1) as numeric))) * 100 as int)

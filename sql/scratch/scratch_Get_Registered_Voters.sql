@@ -16,3 +16,6 @@ where street_name like 'SHADY CREEK%'
 ;
 
 select * from get_registered_voters('2217', 53342129);
+
+select * from Get_Registered_Voters('2222')
+
