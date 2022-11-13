@@ -42,7 +42,8 @@ insert into address_supplement
        restricted,
        complex_name,
 	   complex_contact,
-	   complex_phone
+	   complex_phone,
+	   modified_date
 )
 values
 (
@@ -54,7 +55,8 @@ values
        inrestricted,
        incomplex_name,
 	   incomplex_contact,
-	   incomplex_phone
+	   incomplex_phone,
+	   current_timestamp
 )
 on conflict (address_geo_id)
 WHERE ((address_supplement.address_geo_id)::integer = inaddress_geo_id::integer)
@@ -67,7 +69,8 @@ set
    restricted = case when inrestricted is not null then inrestricted else address_supplement.restricted end,
    complex_name = case when incomplex_name is not null then incomplex_name else address_supplement.complex_name end,
    complex_contact = case when incomplex_contact is not null then incomplex_contact else address_supplement.complex_contact end,
-   complex_phone = case when incomplex_phone is not null then incomplex_phone else address_supplement.complex_phone end
+   complex_phone = case when incomplex_phone is not null then incomplex_phone else address_supplement.complex_phone end,
+   modified_date = current_timestamp
 ; 
 
 get diagnostics rowcount = row_count;   

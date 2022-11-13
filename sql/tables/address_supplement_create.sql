@@ -16,6 +16,7 @@ create table address_supplement (
     complex_name character varying(64),
 	complex_contact character varying(64),
 	complex_phone character varying(64),
+    modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (address_geo_id)
 );
 
