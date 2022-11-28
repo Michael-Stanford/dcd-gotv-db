@@ -1,7 +1,7 @@
 
 -- Create Person Extract Table
-drop table if exists `demstxdallascp.sbx_farrarb.person_extract`;
-create table if not exists `demstxdallascp.sbx_farrarb.person_extract`
+drop table if exists `demstxdallascp.gotv_extracts.person_extract`;
+create table if not exists `demstxdallascp.gotv_extracts.person_extract`
 (
   person_id  INT64,
   address_id INT64,
@@ -22,7 +22,7 @@ create table if not exists `demstxdallascp.sbx_farrarb.person_extract`
 );
 
 -- Get Person for Extract
-insert into `demstxdallascp.sbx_farrarb.person_extract`
+insert into `demstxdallascp.gotv_extracts.person_extract`
 (person_id, address_id, full_name, date_of_birth, gender, sos_id, reg_voter_status, first_name, middle_name, last_name,  suffix,
  last_primary_party, primary_parties,
   create_date, modified_date, query_date)
@@ -68,4 +68,4 @@ where p.is_deceased = false
   --and p.person_id = '178184457'
 ;   
 
--- select * from `demstxdallascp.sbx_farrarb.person_extract`;
+-- select * from `demstxdallascp.gotv_extracts.person_extract`;

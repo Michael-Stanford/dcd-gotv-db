@@ -1,7 +1,7 @@
 
 -- Create Precinct Table
-drop table if exists `demstxdallascp.sbx_farrarb.precinct_extract`;
-create table if not exists `demstxdallascp.sbx_farrarb.precinct_extract`
+drop table if exists `demstxdallascp.gotv_extracts.precinct_extract`;
+create table if not exists `demstxdallascp.gotv_extracts.precinct_extract`
 (
   precinct_name	STRING,
   us_cong_district	STRING,
@@ -11,11 +11,11 @@ create table if not exists `demstxdallascp.sbx_farrarb.precinct_extract`
 );
 
 -- Extract Precinct Table
-insert into `demstxdallascp.sbx_farrarb.precinct_extract` 
+insert into `demstxdallascp.gotv_extracts.precinct_extract` 
   (precinct_name, us_cong_district, state_house_district, state_senate_district, query_date)
 with us_cong_district_rn as (
   select distinct precinct_name, us_cong_district, count(*) as count 
-  from `demstxdallascp.sbx_farrarb.address_extract`
+  from `demstxdallascp.gotv_extracts.address_extract`
   where precinct_name is not null and us_cong_district is not null
   group by 1,2
 ), 
@@ -26,7 +26,7 @@ us_cong_district_count as (
 ),
 state_house_district_rn as (
   select distinct precinct_name, state_house_district, count(*) as count 
-  from `demstxdallascp.sbx_farrarb.address_extract`
+  from `demstxdallascp.gotv_extracts.address_extract`
   where precinct_name is not null and state_house_district is not null
   group by 1,2
 ),
@@ -37,7 +37,7 @@ state_house_district_count as (
 ),
 state_senate_district_rn as (
   select distinct precinct_name, state_senate_district, count(*) as count 
-  from `demstxdallascp.sbx_farrarb.address_extract`
+  from `demstxdallascp.gotv_extracts.address_extract`
   where precinct_name is not null and state_senate_district is not null
   group by 1,2
 ),
@@ -48,7 +48,7 @@ state_senate_district_count as (
 ),
 precincts as (
   select distinct precinct_name 
-  from `demstxdallascp.sbx_farrarb.address_extract`
+  from `demstxdallascp.gotv_extracts.address_extract`
   where precinct_name is not null
 )
 select p.precinct_name, uc.us_cong_district, sh.state_house_district, ss.state_senate_district, 
@@ -60,4 +60,4 @@ left join state_senate_district_count ss on ss.precinct_name = p.precinct_name a
 order by 1,2,3,4
 ;
 
-select * from `demstxdallascp.sbx_farrarb.precinct_extract`;
+select * from `demstxdallascp.gotv_extracts.precinct_extract`;

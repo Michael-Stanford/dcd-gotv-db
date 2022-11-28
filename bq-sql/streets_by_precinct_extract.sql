@@ -1,16 +1,16 @@
 -- Create Street Extract Table
-drop table if exists `demstxdallascp.sbx_farrarb.streets_by_precinct_extract`;
-create table if not exists `demstxdallascp.sbx_farrarb.streets_by_precinct_extract`
+drop table if exists `demstxdallascp.gotv_extracts.streets_by_precinct_extract`;
+create table if not exists `demstxdallascp.gotv_extracts.streets_by_precinct_extract`
 (
     street_id INT64,
     precincts STRING
 );
 
 -- Get Street for Extract
-insert into `demstxdallascp.sbx_farrarb.streets_by_precinct_extract` (street_id, precincts)
+insert into `demstxdallascp.gotv_extracts.streets_by_precinct_extract` (street_id, precincts)
 with xx as (
 	select distinct street_id, precinct_name
-	from `demstxdallascp.sbx_farrarb.address_extract`
+	from `demstxdallascp.gotv_extracts.address_extract`
 	group by street_id, precinct_name
 	order by street_id, precinct_name
 ),
@@ -23,11 +23,11 @@ select distinct street_id, precincts
 from yy
 ;
 
-select * from `demstxdallascp.sbx_farrarb.streets_by_precinct_extract`;
+select * from `demstxdallascp.gotv_extracts.streets_by_precinct_extract`;
 
 select ae.street_id,ae.full_street_name,sbpe.precincts
-	from `demstxdallascp.sbx_farrarb.address_extract` ae
-left join `demstxdallascp.sbx_farrarb.streets_by_precinct_extract` sbpe
+	from `demstxdallascp.gotv_extracts.address_extract` ae
+left join `demstxdallascp.gotv_extracts.streets_by_precinct_extract` sbpe
   on sbpe.street_id = ae.street_id
 where ae.full_street_name like '%SHADY CREEK%'
 ;

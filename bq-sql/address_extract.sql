@@ -1,6 +1,6 @@
 -- Create Address Extract Table
-drop table if exists `demstxdallascp.sbx_farrarb.address_extract`;
-create table if not exists `demstxdallascp.sbx_farrarb.address_extract`
+drop table if exists `demstxdallascp.gotv_extracts.address_extract`;
+create table if not exists `demstxdallascp.gotv_extracts.address_extract`
 (
   address_geo_id  INT64,
   city	STRING,
@@ -28,7 +28,7 @@ create table if not exists `demstxdallascp.sbx_farrarb.address_extract`
 );
 
 -- Get Address for Extract
-insert into `demstxdallascp.sbx_farrarb.address_extract` 
+insert into `demstxdallascp.gotv_extracts.address_extract` 
 (address_geo_id, city, zip, zip4, street_number, street_pre_dir, street_name, street_type, street_post_dir, melissa_data_results, address_type, 
  us_cong_district, state_house_district, state_senate_district, precinct_name, longitude, latitude, full_street_name, full_address, create_date, modified_date, query_date)
 with xx as (
@@ -62,13 +62,13 @@ order by address_geo_id
 
 -- Review Address Extract -----------------------------------------
 -- Street Numbers that are not copacetic
-select * from `demstxdallascp.sbx_farrarb.address_extract` where not regexp_contains(trim(street_number), r"^[0-9]+$") ;
+select * from `demstxdallascp.gotv_extracts.address_extract` where not regexp_contains(trim(street_number), r"^[0-9]+$") ;
 -- check for duplicates
-select distinct full_address, count(*) from `demstxdallascp.sbx_farrarb.address_extract`  group by 1 order by 2 desc;
+select distinct full_address, count(*) from `demstxdallascp.gotv_extracts.address_extract`  group by 1 order by 2 desc;
 -- Congress 
-select coalesce(us_cong_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.sbx_farrarb.address_extract` group by 1 order by 2 desc;
+select coalesce(us_cong_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.gotv_extracts.address_extract` group by 1 order by 2 desc;
 
-select * from `demstxdallascp.sbx_farrarb.address_extract` where us_cong_district is null;
+select * from `demstxdallascp.gotv_extracts.address_extract` where us_cong_district is null;
 
 select a.address_id, a.address, a.us_cong_district, a.state_house_district, a.state_senate_district, pr.precinct_name ,
        p.us_cong_district, p.state_house_district, p.state_senate_district, p.van_precinct_name    
@@ -85,9 +85,8 @@ select * from  `demstxsp.tdp_dallasdems.person`    where address_id = '152927480
 
 
 -- State House Representive 
-select coalesce(state_house_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.sbx_farrarb.address_extract` group by 1 order by 2 desc;
+select coalesce(state_house_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.gotv_extracts.address_extract` group by 1 order by 2 desc;
 -- State Senator 
-select coalesce(state_senate_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.sbx_farrarb.address_extract` group by 1 order by 2 desc;
+select coalesce(state_senate_district,'missing') as us_cong_district,count(*) as count from `demstxdallascp.gotv_extracts.address_extract` group by 1 order by 2 desc;
 -- Precinct 
-select coalesce(precinct_name,'missing') as us_cong_district,count(*) as count from `demstxdallascp.sbx_farrarb.address_extract` group by 1 order by 2 desc;
-
+select coalesce(precinct_name,'missing') as us_cong_district,count(*) as count from `demstxdallascp.gotv_extracts.address_extract` group by 1 order by 2 desc;

@@ -1,7 +1,7 @@
 
 -- Create Re-registration Targets Extract Table
-drop table if exists `demstxdallascp.sbx_farrarb.reregistration_targets_extract`;
-create table if not exists `demstxdallascp.sbx_farrarb.reregistration_targets_extract`
+drop table if exists `demstxdallascp.gotv_extracts.reregistration_targets_extract`;
+create table if not exists `demstxdallascp.gotv_extracts.reregistration_targets_extract`
 (
   person_id	STRING,
   to_address_id STRING,
@@ -24,7 +24,7 @@ create table if not exists `demstxdallascp.sbx_farrarb.reregistration_targets_ex
   query_date	TIMESTAMP
 );
 
-insert into `demstxdallascp.sbx_farrarb.reregistration_targets_extract`
+insert into `demstxdallascp.gotv_extracts.reregistration_targets_extract`
 with phone_1 as (
     select 
         person_id,
