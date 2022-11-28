@@ -62,6 +62,8 @@ left join `demstxsp.tdp_dallasdems.precinct` p on p.dnc_precinct_id = a.dnc_prec
 where rn = 1 
 order by address_geo_id
 ;
+
+select "address_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.address_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -79,6 +81,8 @@ create table if not exists `demstxdallascp.gotv_extracts.city_extract`
 insert into `demstxdallascp.gotv_extracts.city_extract`
 select distinct city from `demstxdallascp.gotv_extracts.address_extract` 
 order by city;
+
+select "city_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.city_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -104,6 +108,8 @@ from xx
 where xx.street_dir is not null
 order by street_dir
 ;
+
+select "direction_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.direction_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -176,6 +182,8 @@ where p.is_deceased = false
   and p.reg_voter_flag = true
   and p.county_fips = '113'
 ; 
+
+select "person_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.person_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -242,6 +250,8 @@ left join state_house_district_count sh on sh.precinct_name = p.precinct_name an
 left join state_senate_district_count ss on ss.precinct_name = p.precinct_name and ss.rn = 1
 order by 1,2,3,4
 ;
+
+select "precinct_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.precinct_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -326,6 +336,8 @@ where
     lower(t.county_name) in ('dallas')
     and  target_type != 'suspense_voters'
 ;
+
+select "reregistration_targets_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.reregistration_targets_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -378,6 +390,8 @@ set street_id =
    (select distinct street_id from `demstxdallascp.gotv_extracts.street_extract` s where a.full_street_name = s.full_street_name)
 where a.full_address is not null
 ;
+
+select "street_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.street_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -398,6 +412,8 @@ from `demstxdallascp.gotv_extracts.address_extract`
 where street_type is not null 
 order by street_type
 ;
+
+select "street_type_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.street_type_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -428,6 +444,8 @@ GROUP  BY 1
 select distinct street_id, precincts 
 from yy
 ;
+
+select "streets_by_precinct_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.streets_by_precinct_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -476,6 +494,8 @@ group by 1,2,3,4
 select address_id, address_geo_id, unit_type, unit, current_timestamp() as query_date
 from zz
 ;
+
+select "unit_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.unit_extract`;
 END
 ;
 -- ---------------------------------------------------------------------------------------
@@ -505,5 +525,25 @@ where unit_type in (select city as unit_type from `demstxdallascp.gotv_extracts.
 
 delete from `demstxdallascp.gotv_extracts.unit_type_extract`
 where unit_type in ('1112 PHASE','KINGSBURY','XXXX');
+
+select "unit_type_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.unit_type_extract`;
+END
+;
+-- ---------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE demstxdallascp.gotv_extracts.get_extract_counts()
+-- ---------------------------------------------------------------------------------------
+BEGIN
+
+select "address_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.address_extract`
+union all select "city_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.city_extract`
+union all select "direction_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.direction_extract`
+union all select "person_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.person_extract`
+union all select "precinct_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.precinct_extract`
+union all select "reregistration_targets_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.reregistration_targets_extract`
+union all select "street_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.street_extract`
+union all select "street_type_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.street_type_extract`
+union all select "streets_by_precinct_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.streets_by_precinct_extract`
+union all select "unit_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.unit_extract`
+union all select "unit_type_extract" as table_name, count(*) as count from `demstxdallascp.gotv_extracts.unit_type_extract`;
 END
 ;
